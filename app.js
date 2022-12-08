@@ -7,14 +7,18 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("public"));
 app.use(express.static("files"));
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "*",
+    methods: ["GET", "POST"],
     credentials: true,
     optionsSuccessStatus: 200,
+    allowedHeaders: ["Content-Type"],
   })
 );
-const user = require("./routes/UserRoute"); 
+
+const user = require("./routes/UserRoute");
 // api
 app.use("/api", user);
 
