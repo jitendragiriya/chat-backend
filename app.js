@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const { CORS_URL } = require("./constants");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -10,7 +11,7 @@ app.use(express.static("files"));
 
 app.use(
   cors({
-    origin: "*",
+    origin: `${CORS_URL}`,
     methods: ["GET", "POST"],
     credentials: true,
     optionsSuccessStatus: 200,
