@@ -10,11 +10,9 @@ app.use(express.static("files"));
 
 app.use(
   cors({
-    origin: `${process.env.CORS_URL}`,
-    methods: ["GET", "POST"],
+    origin: `https://myshop-chatapp.netlify.app`,
     credentials: true,
     optionsSuccessStatus: 200,
-    allowedHeaders: ["Content-Type"],
   })
 );
 
