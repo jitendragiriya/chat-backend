@@ -1,14 +1,18 @@
 const mongoose = require("mongoose");
 
 const ConnectDb = async () => {
+  mongoose.set("strictQuery", true);
   await mongoose
-    .connect(process.env.DB_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
+    .connect(
+      `${process.env.MONGODB_CONNECTION_URL}`,
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true, 
+      }
+    )
     .then(() => console.log("Database connected successfully."))
     .catch((error) => {
-      console.log("Database is not connected...\n\n",error);
+      console.log("Database is not connected...\n\n", error);
     });
 };
 

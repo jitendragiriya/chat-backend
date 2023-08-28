@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
-const cors = require("cors"); 
+const cors = require("cors");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -10,7 +10,11 @@ app.use(express.static("files"));
 
 app.use(
   cors({
-    origin: `https://myshop-chatapp.netlify.app`,
+    origin: [
+      `${process.env.CORS_URL1}`,
+      `${process.env.CORS_URL2}`,
+      `${process.env.CORS_URL3}`,
+    ],
     credentials: true,
     optionsSuccessStatus: 200,
   })
