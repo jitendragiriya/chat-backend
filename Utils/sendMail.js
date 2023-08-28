@@ -18,9 +18,7 @@ const sendMail = async (options) => {
     text: options.message,
   };
 
-  console.log("sending mail")
-  await transporter.sendMail(mailOptions);
-  console.log("mail sent")
+  return transporter.sendMail(mailOptions);
 };
 
 module.exports = sendMail;

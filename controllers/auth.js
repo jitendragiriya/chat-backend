@@ -16,18 +16,18 @@ exports.loginWithOTP = CatchAsyncError(async (req, res, next) => {
   const emailUsername = (email) => {
     var username = "";
     for (let index = 0; index < email.length; index++) {
-      let CharCode = email.charCodeAt(index); 
-      if ((CharCode === 64)) {
+      let CharCode = email.charCodeAt(index);
+      if (CharCode === 64) {
         break;
       } else {
-        username += email.charAt(index); 
+        username += email.charAt(index);
       }
     }
-    return username
+    return username;
   };
   if (!user) {
-    const username = emailUsername(email); 
-    if (username && username.length) { 
+    const username = emailUsername(email);
+    if (username && username.length) {
       user = await User.create({ email, username });
     }
   }
@@ -48,18 +48,21 @@ exports.loginWithOTP = CatchAsyncError(async (req, res, next) => {
     expiresIn: Date.now() + process.env.LOGIN_OTP_EXPIRES, //10 minute future
   });
 
-  console.log(generated.otp)
-  sendMail({
+  await sendMail({
     email,
     message: `Your verification OTP is : ${generated.otp} \n\nThank you!`,
     subject: `MyChat : Profilce Verification Code :${generated.createdAt
       .toString()
       .slice(0, 24)}`,
-  });
-
-  res
-    .status(200)
-    .json({ message: "OTP send to your email address successfully." });
+  })
+    .then((response) => {
+      res
+        .status(200)
+        .json({ message: `OTP send to ${response?.accepted} successfully.` });
+    })
+    .catch((error) => {
+      res.status(500).json({ message: "Internal server error!" });
+    });
 });
 
 //verify email
