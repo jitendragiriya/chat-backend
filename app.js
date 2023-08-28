@@ -10,7 +10,7 @@ app.use(express.static("files"));
 
 app.use(
   cors({
-    origin: `https://myshop-chatapp.netlify.app`,
+    origin: `https://chat-68py.onrender.com`,
     credentials: true,
     optionsSuccessStatus: 200,
   })
