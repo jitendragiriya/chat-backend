@@ -11,9 +11,8 @@ app.use(express.static("files"));
 app.use(
   cors({
     origin: [
-      `${process.env.CORS_URL1}`,
-      `${process.env.CORS_URL2}`,
-      `${process.env.CORS_URL3}`,
+      `${process.env.DEVELOPMENT_CORS}`,
+      `${process.env.PRODUCTION_CORS}`,
     ],
     credentials: true,
     optionsSuccessStatus: 200,
