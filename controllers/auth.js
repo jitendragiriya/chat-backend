@@ -78,6 +78,7 @@ exports.verifyEmailOTP = CatchAsyncError(async (req, res, next) => {
   }
 
   const generated = await OTPModel.findOne({ email });
+
   //match otp
   if (Date.now() > generated.expiresIn) {
     return next(new ErrorHandler("Please regenerate OTP!", 400));

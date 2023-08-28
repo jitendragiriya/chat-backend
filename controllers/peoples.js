@@ -1,7 +1,6 @@
 // Error handler
 const CatchAsyncError = require("../Middlewares/CatchAsyncError");
-const User = require("../Models/UsersModel");
-const ErrorHandler = require("../Utils/ErrorHandler");
+const User = require("../Models/UsersModel"); 
 
 //get all users
 exports.getAllUsers = CatchAsyncError(async (req, res, next) => {
