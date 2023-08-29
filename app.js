@@ -8,6 +8,11 @@ app.use(cookieParser());
 app.use(express.static("public"));
 app.use(express.static("files"));
 
+// importing the configuration file when app is not in production.
+if (process.env.NODE_ENV !== "PRODUCTION") {
+  require("dotenv").config({ path: "./config/config.env" });
+}
+
 app.use(
   cors({
     origin: [

@@ -7,9 +7,9 @@ const User = require("../Models/UsersModel");
 // checking user is logged in or not.
 
 exports.isAuthenticated = CatchAsyncError(async (req, res, next) => {
-  const { token } = req.headers;
-
-  if (!token) {
+  const {token} = req.headers;
+ 
+  if (typeof token !== "string") {
     return next(new ErrorHandler("Please login first", 401));
   }
 

@@ -11,10 +11,7 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
-// importing the configuration file when app is not in production.
-if (process.env.NODE_ENV !== "PRODUCTION") {
-  require("dotenv").config({ path: "./config/config.env" });
-}
+
 // conneting the database.
 ConnectDb();
 
