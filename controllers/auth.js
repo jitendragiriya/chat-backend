@@ -1,93 +1,38 @@
 const CatchAsyncError = require("../Middlewares/CatchAsyncError");
 const User = require("../Models/UsersModel");
-const ErrorHandler = require("../Utils/ErrorHandler");
 const sendToken = require("../Utils/SendToken");
-const otpGenerator = require("otp-generator");
-const OTPModel = require("../Models/OTP");
-const sendMail = require("../Utils/sendMail");
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_OAUTH_CLIENT_ID);
 
-//login with otp
-exports.loginWithOTP = CatchAsyncError(async (req, res, next) => {
-  const { email } = req.body;
-  if (!email) {
-    return next(new ErrorHandler("Please Enter your email!"));
-  }
+/**
+ *  auth
+ */
+
+exports.googleAuth = CatchAsyncError(async (req, res, next) => {
+  const { token } = req.body;
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: process.env.GOOGLE_OAUTH_CLIENT_ID,
+  });
+  const { name, email, picture } = ticket.getPayload();
   let user = await User.findOne({ email });
-  const emailUsername = (email) => {
-    var username = "";
-    for (let index = 0; index < email.length; index++) {
-      let CharCode = email.charCodeAt(index);
-      if (CharCode === 64) {
-        break;
-      } else {
-        username += email.charAt(index);
+  if (user?._id) {
+    await User.updateOne(
+      { email },
+      {
+        email,
+        name,
+        picture,
+        username: email.replace("@gmail.com", ""),
       }
-    }
-    return username;
-  };
-  if (!user) {
-    const username = emailUsername(email);
-    if (username && username.length) {
-      user = await User.create({ email, username });
-    }
-  }
-  //generate otp
-  //if otp is already generated than delete previous email
-  const getOpt = await OTPModel.find({ email });
-  if (getOpt) {
-    await OTPModel.deleteMany({ email });
-  }
-  const otp = otpGenerator.generate(6, {
-    upperCaseAlphabets: false,
-    specialChars: false,
-  });
-
-  const generated = await OTPModel.create({
-    email,
-    otp,
-    expiresIn: Date.now() + process.env.LOGIN_OTP_EXPIRES, //10 minute future
-  });
-
-  await sendMail({
-    email,
-    message: `Your verification OTP is : ${generated.otp} \n\nThank you!`,
-    subject: `MyChat : Profilce Verification Code :${generated.createdAt
-      .toString()
-      .slice(0, 24)}`,
-  })
-    .then((response) => {
-      res
-        .status(200)
-        .json({ message: `OTP send to ${response?.accepted} successfully.` });
-    })
-    .catch((error) => {
-      res.status(500).json({ message: "Internal server error!" });
-    });
-});
-
-//verify email
-exports.verifyEmailOTP = CatchAsyncError(async (req, res, next) => {
-  const { email, otp } = req.body;
-  if (!otp) {
-    return next(new ErrorHandler("Please Enter your email!"));
-  }
-  if (!email) {
-    return next(
-      new ErrorHandler("Something went wrong please try again later!", 405)
     );
-  }
-
-  const generated = await OTPModel.findOne({ email });
-
-  //match otp
-  if (Date.now() > generated.expiresIn) {
-    return next(new ErrorHandler("Please regenerate OTP!", 400));
-  } else if (otp !== generated.otp) {
-    return next(new ErrorHandler("Please enter a valid OTP!", 400));
-  }
-
-  if (otp === generated.otp) {
-    const user = await User.findOne({ email });
+    sendToken(user, 200, res);
+  } else {
+    user = await User.create({
+      email,
+      name,
+      picture,
+    });
     sendToken(user, 200, res);
   }
 });

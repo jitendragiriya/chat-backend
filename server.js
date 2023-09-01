@@ -11,59 +11,64 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
-
 // conneting the database.
 ConnectDb();
 
 const Errors = require("./Middlewares/Errors");
+const { saveMessage } = require("./controllers/chat");
 app.use(Errors);
 // server listening
 const PORT = process.env.PORT || 5000;
 
 const server = http.createServer(app);
-const IO = socketIO(server);
+const io = socketIO(server, {
+  cors: {
+    origin: [
+      `${process.env.DEVELOPMENT_CORS}`,
+      `${process.env.PRODUCTION_CORS}`,],
+    credentials: true,
+  },
+});
 
-let users = [];
+const users = {}; // Create an object to store user data
 
-const adduser = (userId, socketId) => {
-  !users.some((user) => user.userId === userId) &&
-    users.push({ userId, socketId });
-};
+io.on("connection", (socket) => {
+  console.log("User connected");
 
-const removeuser = (socketId) => {
-  users = users.filter((user) => user.socketId !== socketId);
-};
-
-const getusers = async (userId) => {
-  console.log("\nuserid is here",userId);
-
-  const user = await users.find((user) => user.userId === userId);
-  console.log("\nuser is here",user);
-  return user;
-};
-
-IO.on("connection", (socket) => {
-  socket.on("adduser", ({ user }) => {
-    adduser(user, socket.id);
-    IO.emit("onlineUser", users);
-  });
-
-  socket.on("sendMessage", async ({ senderId, recieverId, message }) => {
-    const user = await getusers(recieverId);
-    if(!user){
-      return;
-    }
-    IO.to(user.socketId).emit("getMessage", {
-      senderId,
-      message,
-      createdAt: Date.now(),
-    });
+  // When a user connects, store their socket ID in the users object
+  socket.on("setUser", (receiverId) => {
+    users[receiverId] = socket.id;
   });
 
   socket.on("disconnect", () => {
-    removeuser(socket.id);
-    IO.emit("onlineUser", users);
-    socket.broadcast.emit("leaved", { user: "Admin", message: "user is left" });
+    console.log("User disconnected");
+    // Remove the user from the users object when they disconnect
+    for (const username in users) {
+      if (users[username] === socket.id) {
+        delete users[username];
+        break;
+      }
+    }
+  });
+
+  socket.on("privateMessage", ({ senderId, receiverId, message }) => {
+    saveMessage(senderId, receiverId, message);
+    // Send a private message to a specific user using their socket ID
+    if (users[receiverId]) {
+      io.to(users[receiverId]).emit("privateMessage", {
+        senderId,
+        receiverId,
+        message,
+        time: new Date(), 
+      });
+    } else {
+      io.to(users[senderId]).emit("privateMessage", {
+        senderId,
+        receiverId,
+        message,
+        time: new Date() 
+      });
+    }
   });
 });
 
