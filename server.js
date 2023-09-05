@@ -62,12 +62,6 @@ io.on("connection", (socket) => {
         message,
         time: new Date(),
       });
-      io.to(users[senderId]).emit("privateMessage", {
-        senderId,
-        receiverId,
-        message,
-        time: new Date(),
-      });
     }
   });
 });
