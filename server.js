@@ -52,7 +52,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("privateMessage", ({ senderId, receiverId, message }) => {
+  socket.on("privateMessage", ({ senderId, receiverId, message, time }) => {
     saveMessage(senderId, receiverId, message);
     // Send a private message to a specific user using their socket ID
     if (users[receiverId]) {
@@ -60,7 +60,7 @@ io.on("connection", (socket) => {
         senderId,
         receiverId,
         message,
-        time: new Date(),
+        time,
       });
     }
   });
