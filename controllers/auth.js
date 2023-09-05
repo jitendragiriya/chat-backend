@@ -39,6 +39,6 @@ exports.googleAuth = CatchAsyncError(async (req, res, next) => {
 
 // ==============is user already loggedin====================
 exports.authUser = CatchAsyncError(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user.id); 
   res.status(200).json(user);
 });

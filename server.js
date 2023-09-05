@@ -52,7 +52,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("privateMessage", ({ senderId, receiverId, message }) => {
-    saveMessage(senderId, receiverId, message);
+    saveMessage(senderId, receiverId, message); 
     // Send a private message to a specific user using their socket ID
     if (users[receiverId]) {
       io.to(users[receiverId]).emit("privateMessage", {
