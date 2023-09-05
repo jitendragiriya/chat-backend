@@ -25,7 +25,8 @@ const io = socketIO(server, {
   cors: {
     origin: [
       `${process.env.DEVELOPMENT_CORS}`,
-      `${process.env.PRODUCTION_CORS}`,],
+      `${process.env.PRODUCTION_CORS}`,
+    ],
     credentials: true,
   },
 });
@@ -52,21 +53,20 @@ io.on("connection", (socket) => {
   });
 
   socket.on("privateMessage", ({ senderId, receiverId, message }) => {
-    saveMessage(senderId, receiverId, message); 
+    saveMessage(senderId, receiverId, message);
     // Send a private message to a specific user using their socket ID
     if (users[receiverId]) {
       io.to(users[receiverId]).emit("privateMessage", {
         senderId,
         receiverId,
         message,
-        time: new Date(), 
+        time: new Date(),
       });
-    } else {
       io.to(users[senderId]).emit("privateMessage", {
         senderId,
         receiverId,
         message,
-        time: new Date() 
+        time: new Date(),
       });
     }
   });
