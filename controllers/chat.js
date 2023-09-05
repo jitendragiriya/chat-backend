@@ -6,11 +6,12 @@ const Message = require("../Models/Message");
 const CatchAsyncError = require("../Middlewares/CatchAsyncError");
 const ErrorHandler = require("../Utils/ErrorHandler");
 
-exports.saveMessage = async (senderId, receiverId, message) => {
+exports.saveMessage = async (senderId, receiverId, message,sentAt) => {
    await Message.create({
     senderId,
     receiverId,
     message,
+    sentAt
   }); 
 };
 
